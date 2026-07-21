@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PERISAI Temon - Teman Disabilitas Kapanewon Temon</title>
+  <meta name="description" content="Sistem Informasi Pengelolaan & Peminjaman Alat Bantu Disabilitas Kapanewon Temon, Kabupaten Kulon Progo" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            temon: {
+              50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+              400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+              800: '#115e59', 900: '#134e4a', 950: '#042f2e'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- React & Babel CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05); }
+    .glass-card:hover { box-shadow: 0 20px 30px -10px rgba(13, 148, 136, 0.12); }
+    @media print { .no-print { display: none !important; } body { background: white !important; } }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // --- SEED DATA ---
+    const KALURAHAN_TEMON = [
+      'Glagah', 'Temon Kulon', 'Temon Wetan', 'Palihan', 'Jantisari',
+      'Sindutan', 'Kebonrejo', 'Kaligintung', 'Kedundang', 'Plumbon',
+      'Demen', 'Kulur', 'Karangwuni', 'Janten'
+    ];
+
+    const INITIAL_EQUIPMENT = [
+      {
+        id: 'EQ-001',
+        namaAlat: 'Kursi Roda Standard Ergonomis',
+        jenisAlat: 'Mobilisasi',
+        foto: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=600',
+        pemilik: 'Dinas Sosial Kulon Progo',
+        statusUtama: 'Tersedia',
+        stokTotal: 5,
+        stokTersedia: 4,
+        kondisi: 'Baik',
+        deskripsi: 'Kursi roda lipat berbahan stainless steel dengan sandaran empuk dan rem ganda. Nyaman untuk penggunaan harian lansia & penyandang disabilitas fisik.'
+      },
+      {
+        id: 'EQ-002',
+        namaAlat: 'Kruk Auxillary (Ketiak) Pasang Aluminium',
+        jenisAlat: 'Mobilisasi',
+        foto: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=600',
+        pemilik: 'Pemerintah Kapanewon Temon',
+        statusUtama: 'Tersedia',
+        stokTotal: 8,
+        stokTersedia: 7,
+        kondisi: 'Baik',
+        deskripsi: 'Tongkat ketiak aluminium pasang dengan ketinggian yang dapat disesuaikan. Dilengkapi karet anti-selip di bagian bawah.'
+      },
+      {
+        id: 'EQ-003',
+        namaAlat: 'Walker Lipat Roda Depan',
+        jenisAlat: 'Mobilisasi',
+        foto: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=80&w=600',
+        pemilik: 'CSR Bank BDB Temon',
+        statusUtama: 'Tersedia',
+        stokTotal: 4,
+        stokTersedia: 3,
+        kondisi: 'Baik',
+        deskripsi: 'Alat bantu jalan empat kaki dengan dua roda di bagian depan. Sangat stabil untuk pemulihan stroke atau latihan jalan.'
+      },
+      {
+        id: 'EQ-004',
+        namaAlat: 'Alat Bantu Dengar Digital (BTE)',
+        jenisAlat: 'Pendengaran',
+        foto: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=600',
+        pemilik: 'Puskesmas Temon I',
+        statusUtama: 'Tersedia',
+        stokTotal: 6,
+        stokTersedia: 5,
+        kondisi: 'Baik',
+        deskripsi: 'Hearing aid Behind-The-Ear dengan pemrosesan sinyal digital penekan kebisingan latar belakang.'
+      },
+      {
+        id: 'EQ-005',
+        namaAlat: 'Tongkat Adaptif Lipat Tuna Netra',
+        jenisAlat: 'Penglihatan',
+        foto: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=600',
+        pemilik: 'Pemerintah Kapanewon Temon',
+        statusUtama: 'Tersedia',
+        stokTotal: 5,
+        stokTersedia: 5,
+        kondisi: 'Baik',
+        deskripsi: 'Tongkat navigasi putih reflektif dapat dilipat 4 bagian, ujung roda pemutar halus untuk deteksi permukaan jalan.'
+      },
+      {
+        id: 'EQ-006',
+        namaAlat: 'Kasur Medis Anti-Dekubitus',
+        jenisAlat: 'Perawatan',
+        foto: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600',
+        pemilik: 'Dinas Kesehatan Kulon Progo',
+        statusUtama: 'Tersedia',
+        stokTotal: 3,
+        stokTersedia: 2,
+        kondisi: 'Baik',
+        deskripsi: 'Matras angin dengan mesin kompresor otomatis bergantian gelembung, mencegah lecet akibat tirah baring lama.'
+      }
+    ];
+
+    const INITIAL_REQUESTS = [
+      {
+        id: 'REQ-101',
+        kodeBooking: 'PRSI-2026-001',
+        equipmentId: 'EQ-001',
+        namaAlat: 'Kursi Roda Standard Ergonomis',
+        namaPemohon: 'Budi Santoso',
+        alamatPemohon: 'Padukuhan 2, Kalurahan Glagah, RT 04/RW 02, Kapanewon Temon',
+        nomorWaPemohon: '081234567890',
+        namaPenggunaAlat: 'Mbah Suparni (82 Thn)',
+        catatanKebutuhan: 'Dibutuhkan untuk mobilitas kontrol rutin berobat ke Puskesmas Temon I.',
+        stage: 'permintaan_masuk',
+        tanggalPengajuan: '2026-07-20',
+        durasiHariPinjam: null,
+        tanggalMulaiPinjam: null,
+        tanggalJatuhTempo: null,
+        statusWaReminderSent: false,
+        isArchived: false
+      },
+      {
+        id: 'REQ-102',
+        kodeBooking: 'PRSI-2026-002',
+        equipmentId: 'EQ-003',
+        namaAlat: 'Walker Lipat Roda Depan',
+        namaPemohon: 'Tri Wahyuni',
+        alamatPemohon: 'Padukuhan Palihan I, Kalurahan Palihan, Kapanewon Temon',
+        nomorWaPemohon: '085712345678',
+        namaPenggunaAlat: 'Dimas Nurcahyo (24 Thn)',
+        catatanKebutuhan: 'Latihan jalan pemulihan pasca operasi ligamen lutut.',
+        stage: 'permintaan_diterima',
+        tanggalPengajuan: '2026-07-01',
+        durasiHariPinjam: 24,
+        tanggalMulaiPinjam: '2026-07-01',
+        tanggalJatuhTempo: '2026-07-25',
+        statusWaReminderSent: false,
+        isArchived: false
+      },
+      {
+        id: 'REQ-103',
+        kodeBooking: 'PRSI-2026-003',
+        equipmentId: 'EQ-006',
+        namaAlat: 'Kasur Medis Anti-Dekubitus',
+        namaPemohon: 'Siti Rahmawati',
+        alamatPemohon: 'Padukuhan Temon Kulon RT 02/RW 01, Kalurahan Temon Kulon',
+        nomorWaPemohon: '089611223344',
+        namaPenggunaAlat: 'Bpk. Ahmad Sunardi (68 Thn)',
+        catatanKebutuhan: 'Pasien stroke tirah baring lama.',
+        stage: 'permintaan_selesai',
+        tanggalPengajuan: '2026-06-10',
+        durasiHariPinjam: 30,
+        tanggalMulaiPinjam: '2026-06-10',
+        tanggalJatuhTempo: '2026-07-10',
+        tanggalSelesai: '2026-07-10',
+        statusWaReminderSent: true,
+        isArchived: false
+      }
+    ];
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [isAdminMode, setIsAdminMode] = useState(false);
+      const [equipmentList, setEquipmentList] = useState([]);
+      const [requests, setRequests] = useState([]);
+      const [selectedCategory, setSelectedCategory] = useState('Semua');
+      const [searchQuery, setSearchQuery] = useState('');
+      
+      const [requestModalItem, setRequestModalItem] = useState(null);
+      const [detailModalItem, setDetailModalItem] = useState(null);
+      const [durationModalRequest, setDurationModalRequest] = useState(null);
+      const [equipmentFormItem, setEquipmentFormItem] = useState(null);
+      const [isEquipmentFormOpen, setIsEquipmentFormOpen] = useState(false);
+      const [adminTab, setAdminTab] = useState('kanban'); // 'kanban' | 'inventory' | 'archive'
+      
+      const [toast, setToast] = useState(null);
+
+      // Load & Sync LocalStorage
+      useEffect(() => {
+        const eqData = localStorage.getItem('perisai_temon_eq_v2');
+        const reqData = localStorage.getItem('perisai_temon_req_v2');
+
+        if (eqData) setEquipmentList(JSON.parse(eqData));
+        else {
+          localStorage.setItem('perisai_temon_eq_v2', JSON.stringify(INITIAL_EQUIPMENT));
+          setEquipmentList(INITIAL_EQUIPMENT);
+        }
+
+        if (reqData) setRequests(JSON.parse(reqData));
+        else {
+          localStorage.setItem('perisai_temon_req_v2', JSON.stringify(INITIAL_REQUESTS));
+          setRequests(INITIAL_REQUESTS);
+        }
+      }, []);
+
+      useEffect(() => {
+        if (window.lucide) window.lucide.createIcons();
+      });
+
+      const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 4000);
+      };
+
+      const saveEq = (newList) => {
+        setEquipmentList(newList);
+        localStorage.setItem('perisai_temon_eq_v2', JSON.stringify(newList));
+      };
+
+      const saveReq = (newList) => {
+        setRequests(newList);
+        localStorage.setItem('perisai_temon_req_v2', JSON.stringify(newList));
+      };
+
+      // --------------------------------------------------------
+      // STOK LOGIC & KANBAN STAGE CHANGE
+      // --------------------------------------------------------
+      const handlePublicSubmit = (formData) => {
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        const newReq = {
+          id: `REQ-${Date.now()}`,
+          kodeBooking: `PRSI-2026-${randomSuffix}`,
+          equipmentId: requestModalItem.id,
+          namaAlat: requestModalItem.namaAlat,
+          namaPemohon: formData.namaPemohon,
+          alamatPemohon: `${formData.detailAlamat}, Kalurahan ${formData.kalurahan}, Kapanewon Temon`,
+          nomorWaPemohon: formData.nomorWaPemohon,
+          namaPenggunaAlat: formData.namaPenggunaAlat,
+          catatanKebutuhan: formData.catatanKebutuhan || 'Peminjaman alat disabilitas',
+          stage: 'permintaan_masuk',
+          tanggalPengajuan: new Date().toISOString().split('T')[0],
+          durasiHariPinjam: null,
+          tanggalMulaiPinjam: null,
+          tanggalJatuhTempo: null,
+          statusWaReminderSent: false,
+          isArchived: false
+        };
+
+        saveReq([newReq, ...requests]);
+        setRequestModalItem(null);
+        showToast(`Permohonan ${newReq.kodeBooking} berhasil dikirim ke Superadmin!`, 'success');
+      };
+
+      const handleStageChange = (requestId, newStage, extraDetails = {}) => {
+        const targetReq = requests.find(r => r.id === requestId);
+        if (!targetReq) return;
+
+        const oldStage = targetReq.stage;
+        const targetEq = equipmentList.find(e => e.id === targetReq.equipmentId);
+
+        let updatedEqList = [...equipmentList];
+
+        // 1. Moving into Permintaan Diterima -> DECREASE STOCK (-1)
+        if (oldStage === 'permintaan_masuk' && newStage === 'permintaan_diterima') {
+          if (targetEq) {
+            if (targetEq.stokTersedia <= 0) {
+              showToast(`Stok ${targetEq.namaAlat} tidak cukup.`, 'error');
+              return;
+            }
+            updatedEqList = updatedEqList.map(e => e.id === targetEq.id ? { ...e, stokTersedia: Math.max(0, e.stokTersedia - 1) } : e);
+          }
+          showToast(`Permintaan disetujui! Stok ${targetEq?.namaAlat} berkurang 1 unit di dashboard umum.`, 'success');
+        }
+
+        // 2. Moving into Permintaan Selesai -> INCREASE STOCK (+1)
+        if (oldStage !== 'permintaan_selesai' && newStage === 'permintaan_selesai') {
+          if (targetEq) {
+            updatedEqList = updatedEqList.map(e => e.id === targetEq.id ? { ...e, stokTersedia: Math.min(e.stokTotal, e.stokTersedia + 1) } : e);
+          }
+          showToast(`Peminjaman selesai! Stok ${targetEq?.namaAlat} telah bertambah (+1) kembali di dashboard umum.`, 'success');
+        }
+
+        saveEq(updatedEqList);
+
+        const updatedReqList = requests.map(r => {
+          if (r.id === requestId) {
+            return {
+              ...r,
+              stage: newStage,
+              ...extraDetails,
+              ...(newStage === 'permintaan_selesai' ? { tanggalSelesai: new Date().toISOString().split('T')[0] } : {})
+            };
+          }
+          return r;
+        });
+
+        saveReq(updatedReqList);
+      };
+
+      const handleArchive = (requestId) => {
+        const updated = requests.map(r => r.id === requestId ? { ...r, isArchived: true } : r);
+        saveReq(updated);
+        showToast('Permohonan berhasil dipindahkan ke Database Arsip.', 'info');
+      };
+
+      const handleDeleteReq = (id) => {
+        if (confirm('Menghapus permohonan ini?')) {
+          saveReq(requests.filter(r => r.id !== id));
+          showToast('Permohonan dihapus.', 'info');
+        }
+      };
+
+      const handleSendWA = (req) => {
+        const raw = req.nomorWaPemohon.replace(/[^0-9]/g, '');
+        const phone = raw.startsWith('0') ? '62' + raw.slice(1) : raw;
+        const msg = `Halo Bpk/Ibu *${req.namaPemohon}*,\n\nKami dari *PERISAI Temon Kapanewon Temon* menginformasikan mengenai peminjaman alat *${req.namaAlat}* untuk *${req.namaPenggunaAlat}*.\n\nMasa peminjaman alat akan berakhir dalam *3 hari lagi* pada tanggal *${req.tanggalJatuhTempo}*.\n\nMohon konfirmasinya untuk jadwal pengembalian atau perpanjangan. Terima kasih.\n\n_Pemerintah Kapanewon Temon_`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      };
+
+      const handleSaveEqForm = (formData) => {
+        const exists = equipmentList.some(e => e.id === formData.id);
+        let updated = [];
+        if (exists) {
+          updated = equipmentList.map(e => e.id === formData.id ? formData : e);
+          showToast(`Data ${formData.namaAlat} diperbarui.`, 'success');
+        } else {
+          updated = [formData, ...equipmentList];
+          showToast(`Alat baru ${formData.namaAlat} ditambahkan.`, 'success');
+        }
+        saveEq(updated);
+        setIsEquipmentFormOpen(false);
+      };
+
+      const handleDeleteEq = (id) => {
+        if (confirm('Hapus alat ini dari inventaris?')) {
+          saveEq(equipmentList.filter(e => e.id !== id));
+          showToast('Alat dihapus.', 'info');
+        }
+      };
+
+      const handleResetData = () => {
+        if (confirm('Reset seluruh data ke sampel awal Kapanewon Temon?')) {
+          saveEq(INITIAL_EQUIPMENT);
+          saveReq(INITIAL_REQUESTS);
+          showToast('Data berhasil di-reset.', 'info');
+        }
+      };
+
+      // Calculate Counters
+      const totalAvailable = equipmentList.reduce((acc, curr) => acc + (curr.stokTersedia || 0), 0);
+      const totalItems = equipmentList.reduce((acc, curr) => acc + (curr.stokTotal || 0), 0);
+      const activeRequests = requests.filter(r => !r.isArchived);
+      const incomingReqs = activeRequests.filter(r => r.stage === 'permintaan_masuk');
+      const acceptedReqs = activeRequests.filter(r => r.stage === 'permintaan_diterima');
+      const completedReqs = activeRequests.filter(r => r.stage === 'permintaan_selesai');
+      const archivedReqs = requests.filter(r => r.isArchived || r.stage === 'permintaan_selesai');
+
+      const filteredEquipment = equipmentList.filter(item => {
+        const matchesSearch = item.namaAlat.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              item.pemilik.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCat = selectedCategory === 'Semua' || item.jenisAlat === selectedCategory;
+        return matchesSearch && matchesCat;
+      });
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          
+          {/* NAVBAR */}
+          <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-20">
+                
+                <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setIsAdminMode(false)}>
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-temon-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-temon-500/20">
+                    <i data-lucide="accessibility" className="w-7 h-7"></i>
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl font-extrabold tracking-tight text-slate-900">PERISAI TEMON</span>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Teman Disabilitas</span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium hidden sm:block">Kapanewon Temon • Kulon Progo</p>
+                  </div>
+                </div>
+
+                <div className="hidden md:flex items-center space-x-3">
+                  <div className="px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700">
+                    Tersedia: <strong className="text-emerald-700">{totalAvailable} Unit</strong>
+                  </div>
+                  <div className="px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700">
+                    Dipinjam: <strong className="text-amber-700">{acceptedReqs.length} Unit</strong>
+                  </div>
+                  {incomingReqs.length > 0 && (
+                    <div className="px-3.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700 animate-bounce">
+                      Permintaan Baru: {incomingReqs.length}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setIsAdminMode(!isAdminMode)}
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition ${
+                    isAdminMode
+                      ? 'bg-slate-900 text-white ring-2 ring-slate-900/20'
+                      : 'bg-gradient-to-r from-temon-600 to-teal-600 text-white shadow-temon-600/20'
+                  }`}
+                >
+                  <i data-lucide={isAdminMode ? 'layout-dashboard' : 'shield-check'} className="w-4 h-4"></i>
+                  <span>{isAdminMode ? 'Mode Superadmin (Aktif)' : 'Kelola Superadmin'}</span>
+                </button>
+
+              </div>
+            </div>
+          </header>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            {isAdminMode ? (
+              /* SUPERADMIN DASHBOARD */
+              <div className="space-y-8 pb-16">
+                
+                {/* Admin Header */}
+                <div className="bg-gradient-to-r from-slate-900 via-temon-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-2">
+                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
+                      Panel Superadmin Kapanewon Temon
+                    </span>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold">Sistem Informasi PERISAI Temon</h1>
+                    <p className="text-xs sm:text-sm text-slate-300">
+                      Kelola inventaris alat, jalankan logic Kanban 3-stage, kirim WA Pengingat H-3, & rekap database arsip.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div className="bg-white/10 p-3 rounded-2xl border border-white/10">
+                      <span className="text-[10px] text-slate-300 font-bold block">TOTAL STOK</span>
+                      <strong className="text-lg font-bold">{totalItems}</strong>
+                    </div>
+                    <div className="bg-emerald-500/20 p-3 rounded-2xl border border-emerald-400/30">
+                      <span className="text-[10px] text-emerald-300 font-bold block">TERSEDIA</span>
+                      <strong className="text-lg font-bold text-emerald-400">{totalAvailable}</strong>
+                    </div>
+                    <div className="bg-amber-500/20 p-3 rounded-2xl border border-amber-400/30">
+                      <span className="text-[10px] text-amber-300 font-bold block">MASUK</span>
+                      <strong className="text-lg font-bold text-amber-300">{incomingReqs.length}</strong>
+                    </div>
+                    <div className="bg-blue-500/20 p-3 rounded-2xl border border-blue-400/30">
+                      <span className="text-[10px] text-blue-300 font-bold block">DIPINJAM</span>
+                      <strong className="text-lg font-bold text-blue-300">{acceptedReqs.length}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Admin Nav Tabs */}
+                <div className="flex items-center space-x-2 border-b border-slate-200 pb-4 overflow-x-auto">
+                  <button
+                    onClick={() => setAdminTab('kanban')}
+                    className={`px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition ${
+                      adminTab === 'kanban' ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
+                  >
+                    <i data-lucide="kanban" className="w-4 h-4"></i>
+                    <span>Papan Kanban Permintaan</span>
+                    {incomingReqs.length > 0 && <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-bold">{incomingReqs.length}</span>}
+                  </button>
+
+                  <button
+                    onClick={() => setAdminTab('inventory')}
+                    className={`px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition ${
+                      adminTab === 'inventory' ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
+                  >
+                    <i data-lucide="package" className="w-4 h-4"></i>
+                    <span>Kelola Inventaris Alat ({equipmentList.length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setAdminTab('archive')}
+                    className={`px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition ${
+                      adminTab === 'archive' ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
+                  >
+                    <i data-lucide="database" className="w-4 h-4"></i>
+                    <span>Database & Rekap Arsip ({archivedReqs.length})</span>
+                  </button>
+                </div>
+
+                {/* TAB 1: KANBAN BOARD */}
+                {adminTab === 'kanban' && (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    
+                    {/* KOLOM 1: PERMINTAAN MASUK */}
+                    <div className="bg-slate-100 rounded-3xl p-4 border border-slate-200 space-y-4 min-h-[500px]">
+                      <div className="flex items-center justify-between bg-amber-50 border border-amber-200 p-3 rounded-2xl text-amber-900">
+                        <h3 className="font-extrabold text-sm flex items-center space-x-2">
+                          <i data-lucide="inbox" className="w-4 h-4 text-amber-600"></i>
+                          <span>Permintaan Masuk</span>
+                        </h3>
+                        <span className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 text-xs font-bold flex items-center justify-center">
+                          {incomingReqs.length}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {incomingReqs.length === 0 ? (
+                          <div className="text-center py-12 bg-white/60 rounded-2xl border border-dashed text-slate-400 text-xs">
+                            Belum ada permintaan masuk baru.
+                          </div>
+                        ) : (
+                          incomingReqs.map(req => (
+                            <div key={req.id} className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 shadow-sm">
+                              <div className="flex justify-between items-center text-[10px]">
+                                <span className="font-mono font-bold px-2 py-0.5 bg-amber-100 text-amber-800 rounded">{req.kodeBooking}</span>
+                                <span className="text-slate-400">{req.tanggalPengajuan}</span>
+                              </div>
+                              <h4 className="font-bold text-slate-900 text-sm">{req.namaAlat}</h4>
+                              
+                              <div className="bg-slate-50 p-3 rounded-xl text-xs space-y-1 border border-slate-100">
+                                <p>Pemohon: <strong>{req.namaPemohon}</strong></p>
+                                <p>Pengguna Alat: <strong>{req.namaPenggunaAlat}</strong></p>
+                                <p>WA Aktif: <strong className="text-emerald-700">{req.nomorWaPemohon}</strong></p>
+                                <p className="text-slate-500 text-[11px]">Alamat: {req.alamatPemohon}</p>
+                              </div>
+
+                              <div className="flex space-x-2 pt-1">
+                                <button onClick={() => handleDeleteReq(req.id)} className="px-3 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 text-xs font-bold rounded-xl">Tolak</button>
+                                <button onClick={() => setDurationModalRequest(req)} className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm">Terima & Set Durasi</button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* KOLOM 2: PERMINTAAN DITERIMA */}
+                    <div className="bg-slate-100 rounded-3xl p-4 border border-slate-200 space-y-4 min-h-[500px]">
+                      <div className="flex items-center justify-between bg-blue-50 border border-blue-200 p-3 rounded-2xl text-blue-900">
+                        <h3 className="font-extrabold text-sm flex items-center space-x-2">
+                          <i data-lucide="clock" className="w-4 h-4 text-blue-600"></i>
+                          <span>Permintaan Diterima</span>
+                        </h3>
+                        <span className="w-6 h-6 rounded-full bg-blue-200 text-blue-900 text-xs font-bold flex items-center justify-center">
+                          {acceptedReqs.length}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {acceptedReqs.length === 0 ? (
+                          <div className="text-center py-12 bg-white/60 rounded-2xl border border-dashed text-slate-400 text-xs">
+                            Tidak ada alat yang sedang dipinjam saat ini.
+                          </div>
+                        ) : (
+                          acceptedReqs.map(req => (
+                            <div key={req.id} className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 shadow-sm">
+                              <span className="font-mono font-bold text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded">{req.kodeBooking}</span>
+                              <h4 className="font-bold text-slate-900 text-sm">{req.namaAlat}</h4>
+                              
+                              <div className="bg-slate-50 p-3 rounded-xl text-xs space-y-1 border border-slate-100">
+                                <div className="grid grid-cols-2 text-[10px] pb-1 border-b">
+                                  <div>Tgl Pinjam: <strong>{req.tanggalMulaiPinjam}</strong></div>
+                                  <div>Kembali: <strong className="text-blue-700">{req.tanggalJatuhTempo}</strong></div>
+                                </div>
+                                <p>Pemohon: <strong>{req.namaPemohon}</strong> ({req.nomorWaPemohon})</p>
+                                <p>Pengguna: <strong>{req.namaPenggunaAlat}</strong></p>
+                              </div>
+
+                              <div className="space-y-2 pt-1">
+                                <button onClick={() => handleSendWA(req)} className="w-full py-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5">
+                                  <i data-lucide="send" className="w-3.5 h-3.5"></i>
+                                  <span>Kirim WA Pengingat (H-3)</span>
+                                </button>
+                                <button onClick={() => handleStageChange(req.id, 'permintaan_selesai')} className="w-full py-2 bg-slate-900 text-white text-xs font-bold rounded-xl">
+                                  Selesaikan Peminjaman (Kembalikan Stok)
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* KOLOM 3: PERMINTAAN SELESAI */}
+                    <div className="bg-slate-100 rounded-3xl p-4 border border-slate-200 space-y-4 min-h-[500px]">
+                      <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-emerald-900">
+                        <h3 className="font-extrabold text-sm flex items-center space-x-2">
+                          <i data-lucide="check-circle-2" className="w-4 h-4 text-emerald-600"></i>
+                          <span>Permintaan Selesai</span>
+                        </h3>
+                        <span className="w-6 h-6 rounded-full bg-emerald-200 text-emerald-900 text-xs font-bold flex items-center justify-center">
+                          {completedReqs.length}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {completedReqs.length === 0 ? (
+                          <div className="text-center py-12 bg-white/60 rounded-2xl border border-dashed text-slate-400 text-xs">
+                            Belum ada riwayat selesai di papan.
+                          </div>
+                        ) : (
+                          completedReqs.map(req => (
+                            <div key={req.id} className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 shadow-sm">
+                              <span className="font-mono font-bold text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">{req.kodeBooking}</span>
+                              <h4 className="font-bold text-slate-900 text-sm">{req.namaAlat}</h4>
+                              <div className="bg-slate-50 p-2.5 rounded-xl text-xs space-y-0.5 border">
+                                <p>Pemohon: <strong>{req.namaPemohon}</strong></p>
+                                <p>Pengguna: <strong>{req.namaPenggunaAlat}</strong></p>
+                              </div>
+                              <button onClick={() => handleArchive(req.id)} className="w-full py-2 bg-slate-900 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5">
+                                <i data-lucide="archive" className="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Arsipkan sebagai Database</span>
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                )}
+
+                {/* TAB 2: INVENTORY CRUD */}
+                {adminTab === 'inventory' && (
+                  <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 flex items-center justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">Kelola Data Inventaris Alat Bantu</h2>
+                        <p className="text-xs text-slate-500">Superadmin dapat menambah, mengedit, atau menghapus inventaris alat Kapanewon Temon.</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button onClick={handleResetData} className="px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Reset Demo Data</button>
+                        <button onClick={() => { setEquipmentFormItem(null); setIsEquipmentFormOpen(true); }} className="px-4 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl">+ Tambah Alat Baru</button>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b">
+                          <tr>
+                            <th className="p-4">Informasi Alat</th>
+                            <th className="p-4">Jenis</th>
+                            <th className="p-4">Pemilik</th>
+                            <th className="p-4 text-center">Stok Total</th>
+                            <th className="p-4 text-center">Stok Tersedia</th>
+                            <th className="p-4 text-right">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {equipmentList.map(eq => (
+                            <tr key={eq.id} className="hover:bg-slate-50">
+                              <td className="p-4 flex items-center space-x-3">
+                                <img src={eq.foto} className="w-10 h-10 rounded-lg object-cover" />
+                                <div>
+                                  <strong className="block text-slate-900">{eq.namaAlat}</strong>
+                                  <span className="text-[10px] text-slate-400">{eq.id}</span>
+                                </div>
+                              </td>
+                              <td className="p-4 font-semibold">{eq.jenisAlat}</td>
+                              <td className="p-4">{eq.pemilik}</td>
+                              <td className="p-4 text-center font-bold">{eq.stokTotal} Unit</td>
+                              <td className="p-4 text-center"><span className="px-2.5 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">{eq.stokTersedia} Unit</span></td>
+                              <td className="p-4 text-right space-x-2">
+                                <button onClick={() => { setEquipmentFormItem(eq); setIsEquipmentFormOpen(true); }} className="p-1.5 bg-slate-100 rounded-lg text-slate-700">Edit</button>
+                                <button onClick={() => handleDeleteEq(eq.id)} className="p-1.5 bg-rose-50 text-rose-600 rounded-lg">Hapus</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 3: ARCHIVE DATABASE */}
+                {adminTab === 'archive' && (
+                  <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 flex items-center justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">Rekapitulasi Database Arsip Peminjaman</h2>
+                        <p className="text-xs text-slate-500">Seluruh histori transaksi peminjaman alat disabilitas di Kapanewon Temon.</p>
+                      </div>
+                      <button onClick={() => window.print()} className="px-4 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl">Cetak Laporan</button>
+                    </div>
+
+                    <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-slate-50 uppercase text-[10px] font-bold border-b">
+                          <tr>
+                            <th className="p-4">Kode & Tanggal</th>
+                            <th className="p-4">Alat Bantu</th>
+                            <th className="p-4">Pemohon</th>
+                            <th className="p-4">Pengguna Disabilitas</th>
+                            <th className="p-4">Alamat Pemohon</th>
+                            <th className="p-4">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {archivedReqs.map(r => (
+                            <tr key={r.id}>
+                              <td className="p-4 font-mono font-bold">{r.kodeBooking}<div className="text-[10px] font-sans font-normal text-slate-400">{r.tanggalPengajuan}</div></td>
+                              <td className="p-4 font-bold text-temon-800">{r.namaAlat}</td>
+                              <td className="p-4"><strong>{r.namaPemohon}</strong><br/><span className="text-emerald-700">{r.nomorWaPemohon}</span></td>
+                              <td className="p-4 font-semibold">{r.namaPenggunaAlat}</td>
+                              <td className="p-4 text-[11px] max-w-xs">{r.alamatPemohon}</td>
+                              <td className="p-4"><span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-white">{r.isArchived ? 'Diarsipkan' : 'Selesai'}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            ) : (
+              /* PUBLIC CATALOG VIEW */
+              <div className="space-y-10 pb-16">
+                
+                {/* Hero Banner */}
+                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-temon-900 to-slate-950 text-white p-8 sm:p-12 shadow-2xl">
+                  <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div className="lg:col-span-8 space-y-6">
+                      <span className="px-3.5 py-1.5 rounded-full bg-temon-500/20 text-temon-300 text-xs font-bold border border-temon-400/30">
+                        Layanan Inklusif Kapanewon Temon
+                      </span>
+                      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+                        Ketersediaan Alat Bantu Disabilitas <br />
+                        <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                          Kapanewon Temon
+                        </span>
+                      </h1>
+                      <p className="text-slate-300 text-sm max-w-2xl">
+                        Masyarakat Kapanewon Temon dapat mengecek stok alat bantu disabilitas secara real-time dan mengajukan permohonan pinjam tanpa biaya secara online.
+                      </p>
+                      <a href="#katalog" className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 font-bold text-white text-sm inline-block shadow-lg">
+                        Cari & Pinjam Alat Bantu
+                      </a>
+                    </div>
+
+                    <div className="lg:col-span-4 space-y-3">
+                      <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
+                        <div className="text-xs text-slate-300 font-bold">Stok Siap Dipinjam</div>
+                        <div className="text-3xl font-extrabold text-emerald-400 mt-1">{totalAvailable} <span className="text-sm font-normal text-slate-300">Unit</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Filter & Catalog Grid */}
+                <div id="katalog" className="space-y-6">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border">
+                    <div className="flex space-x-1 overflow-x-auto pb-1 md:pb-0">
+                      {['Semua', 'Mobilisasi', 'Pendengaran', 'Penglihatan', 'Perawatan'].map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                            selectedCategory === cat ? 'bg-temon-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Cari nama alat bantu atau pemilik..."
+                      className="w-full md:w-64 px-4 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:ring-2 focus:ring-temon-500 outline-none"
+                    />
+                  </div>
+
+                  {/* Cards Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredEquipment.map(item => {
+                      const isAvail = item.stokTersedia > 0;
+                      return (
+                        <div key={item.id} className="glass-card rounded-3xl overflow-hidden border border-slate-200 flex flex-col">
+                          <div className="relative h-48 bg-slate-100">
+                            <img src={item.foto} alt={item.namaAlat} className="w-full h-full object-cover" />
+                            <div className="absolute top-3 left-3 flex space-x-2">
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase ${isAvail ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                                {isAvail ? `${item.stokTersedia} Tersedia` : 'Stok Kosong'}
+                              </span>
+                            </div>
+                            <div className="absolute bottom-3 left-3 text-xs text-white bg-slate-900/70 backdrop-blur-md px-2.5 py-0.5 rounded-lg">
+                              Sumber: {item.pemilik}
+                            </div>
+                          </div>
+
+                          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div>
+                              <h3 className="font-bold text-slate-900 text-base">{item.namaAlat}</h3>
+                              <p className="text-xs text-slate-600 mt-1 line-clamp-2">{item.deskripsi}</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+                              <button onClick={() => setDetailModalItem(item)} className="py-2 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl">Detail</button>
+                              <button
+                                onClick={() => isAvail && setRequestModalItem(item)}
+                                disabled={!isAvail}
+                                className={`py-2 text-xs font-bold rounded-xl transition ${
+                                  isAvail ? 'bg-temon-600 text-white hover:bg-temon-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                }`}
+                              >
+                                {isAvail ? 'Ajukan Pinjam' : 'Stok Kosong'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+          </main>
+
+          {/* FOOTER */}
+          <footer className="bg-slate-900 text-slate-300 mt-auto border-t border-slate-800 py-8 text-xs text-center">
+            <div className="max-w-7xl mx-auto px-4 space-y-2">
+              <p className="font-bold text-white">PERISAI TEMON - Teman Disabilitas</p>
+              <p className="text-slate-400">Pemerintah Kapanewon Temon • Kabupaten Kulon Progo, DIY</p>
+              <p className="text-slate-500">© {new Date().getFullYear()} Pelayanan Sosial Disabilitas Inklusif</p>
+            </div>
+          </footer>
+
+          {/* REQUEST FORM MODAL */}
+          {requestModalItem && (
+            <RequestModalForm
+              equipment={requestModalItem}
+              onClose={() => setRequestModalItem(null)}
+              onSubmit={handlePublicSubmit}
+            />
+          )}
+
+          {/* SET DURATION MODAL */}
+          {durationModalRequest && (
+            <SetDurationModal
+              request={durationModalRequest}
+              onClose={() => setDurationModalRequest(null)}
+              onConfirm={(id, days, start, due) => {
+                handleStageChange(id, 'permintaan_diterima', { durasiHariPinjam: days, tanggalMulaiPinjam: start, tanggalJatuhTempo: due });
+                setDurationModalRequest(null);
+              }}
+            />
+          )}
+
+          {/* EQUIPMENT FORM MODAL */}
+          {isEquipmentFormOpen && (
+            <EquipmentForm
+              equipmentToEdit={equipmentFormItem}
+              onClose={() => setIsEquipmentFormOpen(false)}
+              onSave={handleSaveEqForm}
+            />
+          )}
+
+          {/* TOAST */}
+          {toast && (
+            <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 text-xs font-semibold">
+              {toast.msg}
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // --- FORM MODAL: PERMOHONAN PINJAM ---
+    function RequestModalForm({ equipment, onClose, onSubmit }) {
+      const [form, setForm] = useState({
+        namaPemohon: '',
+        kalurahan: 'Glagah',
+        detailAlamat: '',
+        nomorWaPemohon: '',
+        namaPenggunaAlat: '',
+        catatanKebutuhan: ''
+      });
+      const [err, setErr] = useState('');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!form.namaPemohon.trim()) return setErr('Nama Pemohon wajib diisi.');
+        if (!form.detailAlamat.trim()) return setErr('Detail Alamat RT/RW padukuhan wajib diisi.');
+        if (!form.nomorWaPemohon.trim()) return setErr('Nomor WA Pemohon aktif wajib diisi.');
+        if (!form.namaPenggunaAlat.trim()) return setErr('Nama Pengguna Alat Disabilitas wajib diisi.');
+        onSubmit(form);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden my-8">
+            <div className="bg-slate-900 text-white p-6 relative">
+              <button onClick={onClose} className="absolute top-5 right-5 text-slate-400">✕</button>
+              <span className="text-[10px] font-bold uppercase text-emerald-400">Form Permohonan Pinjam</span>
+              <h3 className="text-lg font-bold text-white">{equipment.namaAlat}</h3>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+              {err && <div className="p-3 bg-rose-50 text-rose-700 rounded-xl">{err}</div>}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Nama Pemohon *</label>
+                <input type="text" value={form.namaPemohon} onChange={e=>setForm({...form, namaPemohon: e.target.value})} placeholder="Contoh: Budi Santoso" className="w-full p-2.5 bg-slate-50 border rounded-xl outline-none" />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Nama Pengguna Alat Bantu Disabilitas *</label>
+                <input type="text" value={form.namaPenggunaAlat} onChange={e=>setForm({...form, namaPenggunaAlat: e.target.value})} placeholder="Contoh: Mbah Suparni" className="w-full p-2.5 bg-slate-50 border rounded-xl outline-none" />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Nomor WA Pemohon Aktif *</label>
+                <input type="tel" value={form.nomorWaPemohon} onChange={e=>setForm({...form, nomorWaPemohon: e.target.value})} placeholder="Contoh: 081234567890" className="w-full p-2.5 bg-slate-50 border rounded-xl outline-none" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Kalurahan *</label>
+                  <select value={form.kalurahan} onChange={e=>setForm({...form, kalurahan: e.target.value})} className="w-full p-2.5 bg-slate-50 border rounded-xl outline-none">
+                    {KALURAHAN_TEMON.map(k=><option key={k} value={k}>{k}</option>)}
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">Padukuhan / RT / RW *</label>
+                  <input type="text" value={form.detailAlamat} onChange={e=>setForm({...form, detailAlamat: e.target.value})} placeholder="Padukuhan II, RT 03/RW 01" className="w-full p-2.5 bg-slate-50 border rounded-xl outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Catatan Kebutuhan</label>
+                <textarea rows={2} value={form.catatanKebutuhan} onChange={e=>setForm({...form, catatanKebutuhan: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl outline-none" placeholder="Alasan peminjaman..." />
+              </div>
+              <div className="pt-2 flex space-x-2">
+                <button type="button" onClick={onClose} className="w-1/3 py-2.5 bg-slate-100 font-bold rounded-xl">Batal</button>
+                <button type="submit" className="w-2/3 py-2.5 bg-temon-600 text-white font-bold rounded-xl">Kirim Permohonan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- FORM MODAL: SET DURATION ---
+    function SetDurationModal({ request, onClose, onConfirm }) {
+      const [days, setDays] = useState(14);
+      const handleSave = () => {
+        const start = new Date();
+        const due = new Date();
+        due.setDate(due.getDate() + parseInt(days));
+        onConfirm(request.id, days, start.toISOString().split('T')[0], due.toISOString().split('T')[0]);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4">
+            <h3 className="font-bold text-slate-900 text-base">Tentukan Berapa Hari Alat Dipinjamkan</h3>
+            <p className="text-xs text-slate-500">Pemohon: <strong>{request.namaPemohon}</strong> ({request.namaAlat})</p>
+
+            <div className="grid grid-cols-4 gap-2">
+              {[7, 14, 30, 60].map(d => (
+                <button key={d} onClick={() => setDays(d)} className={`py-2 rounded-xl text-xs font-bold border ${days === d ? 'bg-emerald-600 text-white' : 'bg-slate-100'}`}>
+                  {d} Hari
+                </button>
+              ))}
+            </div>
+
+            <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-[11px]">
+              Menyetujui permintaan ini akan <strong>mengurangi stok publik</strong> sebanyak 1 unit.
+            </div>
+
+            <div className="flex space-x-2 pt-2">
+              <button onClick={onClose} className="w-1/3 py-2.5 bg-slate-100 text-xs font-bold rounded-xl">Batal</button>
+              <button onClick={handleSave} className="w-2/3 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Terima & Set Stok</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- FORM MODAL: INPUT/EDIT EQUIPMENT ---
+    function EquipmentForm({ equipmentToEdit, onClose, onSave }) {
+      const [form, setForm] = useState({
+        namaAlat: '', jenisAlat: 'Mobilisasi', pemilik: 'Dinas Sosial Kulon Progo',
+        foto: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=600',
+        statusUtama: 'Tersedia', stokTotal: 1, stokTersedia: 1, kondisi: 'Baik', deskripsi: ''
+      });
+
+      useEffect(() => {
+        if (equipmentToEdit) setForm({ ...equipmentToEdit });
+      }, [equipmentToEdit]);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          ...form,
+          id: equipmentToEdit ? equipmentToEdit.id : `EQ-${Date.now()}`,
+          stokTotal: parseInt(form.stokTotal),
+          stokTersedia: parseInt(form.stokTersedia)
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 text-xs">
+            <h3 className="font-bold text-slate-900 text-base">{equipmentToEdit ? 'Edit Alat Bantu' : 'Tambah Alat Bantu Baru'}</h3>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="block font-bold mb-1">Nama Alat *</label>
+                <input type="text" value={form.namaAlat} onChange={e=>setForm({...form, namaAlat: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl" required />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-bold mb-1">Jenis</label>
+                  <select value={form.jenisAlat} onChange={e=>setForm({...form, jenisAlat: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl">
+                    <option value="Mobilisasi">Mobilisasi</option>
+                    <option value="Pendengaran">Pendengaran</option>
+                    <option value="Penglihatan">Penglihatan</option>
+                    <option value="Perawatan">Perawatan</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Pemilik / Sumber *</label>
+                  <input type="text" value={form.pemilik} onChange={e=>setForm({...form, pemilik: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl" required />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-bold mb-1">Stok Total</label>
+                  <input type="number" min="1" value={form.stokTotal} onChange={e=>setForm({...form, stokTotal: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl" />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Stok Tersedia</label>
+                  <input type="number" min="0" value={form.stokTersedia} onChange={e=>setForm({...form, stokTersedia: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl" />
+                </div>
+              </div>
+              <div>
+                <label className="block font-bold mb-1">URL Foto</label>
+                <input type="text" value={form.foto} onChange={e=>setForm({...form, foto: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl" />
+              </div>
+              <div>
+                <label className="block font-bold mb-1">Deskripsi</label>
+                <textarea rows={2} value={form.deskripsi} onChange={e=>setForm({...form, deskripsi: e.target.value})} className="w-full p-2 bg-slate-50 border rounded-xl" />
+              </div>
+              <div className="flex space-x-2 pt-2">
+                <button type="button" onClick={onClose} className="w-1/3 py-2.5 bg-slate-100 font-bold rounded-xl">Batal</button>
+                <button type="submit" className="w-2/3 py-2.5 bg-slate-900 text-white font-bold rounded-xl">Simpan Data</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

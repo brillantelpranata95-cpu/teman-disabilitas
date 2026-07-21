@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Equipment Collection: Anyone can read, only superadmin (authenticated) can write
+    match /equipment/{item} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Requests Collection: 
+    // - Anyone can create a request (submit form)
+    // - Only superadmin (authenticated) can read all requests, update, or delete
+    match /requests/{request} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}
