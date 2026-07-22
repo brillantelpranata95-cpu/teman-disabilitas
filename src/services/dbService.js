@@ -1,37 +1,26 @@
-import { db } from '../config/firebase';
-import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import { INITIAL_EQUIPMENT, INITIAL_REQUESTS } from '../data/initialData';
-
-const EQUIPMENT_COLLECTION = 'equipment';
-const REQUESTS_COLLECTION = 'requests';
+import { getStoredEquipment, getStoredRequests } from '../data/storage';
 
 export const dbService = {
   // --- EQUIPMENT ---
   getEquipment: async () => {
     try {
-      const q = query(collection(db, EQUIPMENT_COLLECTION));
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        // Seed initial data if empty
-        console.log("Seeding equipment...");
-        for (const item of INITIAL_EQUIPMENT) {
-          await setDoc(doc(db, EQUIPMENT_COLLECTION, item.id), item);
-        }
-        return INITIAL_EQUIPMENT;
-      }
-      
-      return snapshot.docs.map(doc => doc.data());
+      const res = await fetch('/api/equipment');
+      if (!res.ok) throw new Error('Fetch failed');
+      return await res.json();
     } catch (error) {
       console.error("Error getting equipment:", error);
-      return [];
+      return getStoredEquipment(); // Fallback to storage
     }
   },
 
   saveEquipment: async (itemData) => {
     try {
-      await setDoc(doc(db, EQUIPMENT_COLLECTION, itemData.id), itemData);
-      return true;
+      const res = await fetch('/api/equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(itemData)
+      });
+      return res.ok;
     } catch (error) {
       console.error("Error saving equipment:", error);
       return false;
@@ -40,8 +29,12 @@ export const dbService = {
 
   deleteEquipment: async (id) => {
     try {
-      await deleteDoc(doc(db, EQUIPMENT_COLLECTION, id));
-      return true;
+      const res = await fetch('/api/equipment', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      return res.ok;
     } catch (error) {
       console.error("Error deleting equipment:", error);
       return false;
@@ -51,29 +44,23 @@ export const dbService = {
   // --- REQUESTS ---
   getRequests: async () => {
     try {
-      const q = query(collection(db, REQUESTS_COLLECTION), orderBy('tanggalPengajuan', 'desc'));
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        // Seed initial data if empty
-        console.log("Seeding requests...");
-        for (const req of INITIAL_REQUESTS) {
-          await setDoc(doc(db, REQUESTS_COLLECTION, req.id), req);
-        }
-        return INITIAL_REQUESTS;
-      }
-
-      return snapshot.docs.map(doc => doc.data());
+      const res = await fetch('/api/requests');
+      if (!res.ok) throw new Error('Fetch failed');
+      return await res.json();
     } catch (error) {
       console.error("Error getting requests:", error);
-      return [];
+      return getStoredRequests(); // Fallback to storage
     }
   },
 
   saveRequest: async (requestData) => {
     try {
-      await setDoc(doc(db, REQUESTS_COLLECTION, requestData.id), requestData);
-      return true;
+      const res = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      });
+      return res.ok;
     } catch (error) {
       console.error("Error saving request:", error);
       return false;
@@ -82,8 +69,12 @@ export const dbService = {
 
   updateRequest: async (id, updates) => {
     try {
-      await updateDoc(doc(db, REQUESTS_COLLECTION, id), updates);
-      return true;
+      const res = await fetch('/api/requests', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates })
+      });
+      return res.ok;
     } catch (error) {
       console.error("Error updating request:", error);
       return false;
@@ -92,8 +83,12 @@ export const dbService = {
 
   deleteRequest: async (id) => {
     try {
-      await deleteDoc(doc(db, REQUESTS_COLLECTION, id));
-      return true;
+      const res = await fetch('/api/requests', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      return res.ok;
     } catch (error) {
       console.error("Error deleting request:", error);
       return false;

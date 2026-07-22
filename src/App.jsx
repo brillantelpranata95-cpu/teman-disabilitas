@@ -8,8 +8,6 @@ import DetailModal from './components/DetailModal';
 import LoginModal from './components/LoginModal';
 import { dbService } from './services/dbService';
 import { authService } from './services/authService';
-import { auth } from './config/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function App() {
@@ -27,14 +25,12 @@ export default function App() {
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsAdminMode(true);
-      } else {
-        setIsAdminMode(false);
-      }
-    });
+    // Check if user is already logged in via API
+    const verifyAuth = async () => {
+      const isAuth = await authService.checkAuth();
+      setIsAdminMode(isAuth);
+    };
+    verifyAuth();
     
     // Fetch Data
     const fetchData = async () => {
@@ -47,8 +43,6 @@ export default function App() {
     };
 
     fetchData();
-
-    return () => unsubscribe();
   }, []);
 
   const showToast = (message, type = 'success') => {
