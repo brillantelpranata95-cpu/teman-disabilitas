@@ -1,5 +1,3 @@
-import { getStoredEquipment, getStoredRequests } from '../data/storage';
-
 export const dbService = {
   // --- EQUIPMENT ---
   getEquipment: async () => {
@@ -9,7 +7,7 @@ export const dbService = {
       return await res.json();
     } catch (error) {
       console.error("Error getting equipment:", error);
-      return getStoredEquipment(); // Fallback to storage
+      return []; // Empty for production
     }
   },
 
@@ -49,7 +47,7 @@ export const dbService = {
       return await res.json();
     } catch (error) {
       console.error("Error getting requests:", error);
-      return getStoredRequests(); // Fallback to storage
+      return []; // Empty for production
     }
   },
 
