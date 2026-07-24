@@ -1,22 +1,34 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn('Supabase env vars not set. API routes will fail until configured.');
+let tablesCreated = false;
+
+async function ensureTables() {
+  if (tablesCreated) return;
+  // Use raw SQL via Supabase's RPC or direct query
+  // Since we can't run DDL via the JS client, we check table existence first
+  const { error } = await supabase.from('equipment').select('id').limit(1);
+  if (error && error.message.includes('does not exist')) {
+    console.error('Tables not created yet. Please run supabase-setup.sql in Supabase Dashboard > SQL Editor.');
+  }
+  tablesCreated = true;
 }
 
-const supabase = supabaseUrl && supabaseKey 
-  ? createClient(supabaseUrl, supabaseKey)
-  : null;
-
 export default async function handler(req, res) {
-  if (!supabase) {
-    return res.status(500).json({ error: 'Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.' });
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!url || !key) {
+    return res.status(500).json({ error: 'Supabase env vars not set.' });
   }
 
   try {
+    await ensureTables();
+
     if (req.method === 'GET') {
       const { data, error } = await supabase
         .from('equipment')
@@ -24,7 +36,7 @@ export default async function handler(req, res) {
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      return res.status(200).json(data.map(r => r.data));
+      return res.status(200).json((data || []).map(r => r.data));
     }
 
     if (req.method === 'POST') {
@@ -34,11 +46,7 @@ export default async function handler(req, res) {
 
       const { error } = await supabase
         .from('equipment')
-        .upsert({ 
-          id: item.id, 
-          data: item, 
-          updated_at: new Date().toISOString() 
-        }, { onConflict: 'id' });
+        .upsert({ id: item.id, data: item, updated_at: new Date().toISOString() }, { onConflict: 'id' });
       
       if (error) throw error;
       return res.status(200).json({ success: true });
