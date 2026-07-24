@@ -1,52 +1,82 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.warn('Supabase env vars not set. API routes will fail until configured.');
+}
+
+const supabase = supabaseUrl && supabaseKey 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export default async function handler(req, res) {
+  if (!supabase) {
+    return res.status(500).json({ error: 'Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.' });
+  }
+
   try {
-    // GET — list all requests ordered by tanggalPengajuan desc
     if (req.method === 'GET') {
-      const { rows } = await sql`
-        SELECT id, data FROM requests 
-        ORDER BY (data->>'tanggalPengajuan') DESC
-      `;
-      return res.status(200).json(rows.map(r => r.data));
+      const { data, error } = await supabase
+        .from('requests')
+        .select('*')
+        .order('tanggalPengajuan', { ascending: false });
+      
+      if (error) throw error;
+      return res.status(200).json(data.map(r => r.data));
     }
 
-    // POST — create/upsert request (public can create)
     if (req.method === 'POST') {
       const item = req.body;
       if (!item?.id) return res.status(400).json({ error: 'Missing id' });
 
-      await sql`
-        INSERT INTO requests (id, data, updated_at) VALUES (${item.id}, ${JSON.stringify(item)}, NOW())
-        ON CONFLICT (id) DO UPDATE SET data = ${JSON.stringify(item)}, updated_at = NOW()
-      `;
+      const { error } = await supabase
+        .from('requests')
+        .upsert({ 
+          id: item.id, 
+          data: item, 
+          updated_at: new Date().toISOString() 
+        }, { onConflict: 'id' });
+      
+      if (error) throw error;
       return res.status(200).json({ success: true });
     }
 
-    // PATCH — partial update request (admin only)
     if (req.method === 'PATCH') {
       if (!hasAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
       const { id, updates } = req.body || {};
       if (!id || !updates) return res.status(400).json({ error: 'Missing id or updates' });
 
-      // Fetch current data, merge updates, save back
-      const { rows } = await sql`SELECT data FROM requests WHERE id = ${id}`;
-      if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+      const { data: currentData, error: fetchError } = await supabase
+        .from('requests')
+        .select('data')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError || !currentData) return res.status(404).json({ error: 'Not found' });
 
-      const merged = { ...rows[0].data, ...updates };
-      await sql`
-        UPDATE requests SET data = ${JSON.stringify(merged)}, updated_at = NOW() WHERE id = ${id}
-      `;
+      const merged = { ...currentData.data, ...updates };
+      
+      const { error } = await supabase
+        .from('requests')
+        .upsert({ 
+          id: id, 
+          data: merged, 
+          updated_at: new Date().toISOString() 
+        }, { onConflict: 'id' });
+      
+      if (error) throw error;
       return res.status(200).json({ success: true });
     }
 
-    // DELETE — delete request (admin only)
     if (req.method === 'DELETE') {
       if (!hasAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.body || {};
       if (!id) return res.status(400).json({ error: 'Missing id' });
 
-      await sql`DELETE FROM requests WHERE id = ${id}`;
+      const { error } = await supabase.from('requests').delete().eq('id', id);
+      if (error) throw error;
       return res.status(200).json({ success: true });
     }
 
