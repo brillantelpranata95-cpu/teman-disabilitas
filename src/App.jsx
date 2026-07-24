@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import PublicCatalog from './components/PublicCatalog';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
 import RequestModal from './components/RequestModal';
@@ -237,8 +236,6 @@ export default function App() {
           />
         )}
       </main>
-
-      <Footer />
 
       {showLoginModal && (
         <LoginModal 
