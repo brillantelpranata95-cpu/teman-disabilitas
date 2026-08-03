@@ -19,55 +19,55 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
   const totalItems = equipmentList.reduce((acc, curr) => acc + (curr.stokTotal || 0), 0);
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-10 pb-16">
       {/* Hero Section - Borderless, Natural, Apple-style */}
-      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
         {/* Subtle background depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-transparent to-white" />
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-teal-500/5 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Eyebrow badge - subtle */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-xl border border-slate-200/60 text-slate-700 text-xs font-medium shadow-sm shadow-slate-900/5 mb-8">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 border border-slate-200/60 text-slate-700 text-xs font-medium shadow-sm shadow-slate-900/5 mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             <span>Layanan Inklusif Kapanewon Temon</span>
           </div>
 
           {/* Headline - High contrast, Apple-style typography */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.05] mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.05] mb-5">
             Ketersediaan Alat Bantu<br className="hidden sm:block" />
-            <span className="text-emerald-600 font-extrabold">Disabilitas Kapanewon Temon</span>
+            <span className="text-emerald-700 font-extrabold">Disabilitas Kapanewon Temon</span>
           </h1>
 
           {/* Body text - Better contrast, readable */}
-          <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mb-10 font-normal">
+          <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mb-8 font-normal">
             Masyarakat Kapanewon Temon dapat mengecek ketersediaan stok alat bantu disabilitas 
             <span className="text-slate-800 font-medium">(kursi roda, kruk, hearing aid, matras dekubitus, dll.)</span> 
             secara transparan dan mengajukan permohonan pinjam tanpa biaya secara online.
           </p>
 
           {/* CTA Row - Apple-style buttons */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <a 
               href="#katalog" 
-              className="group w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-950 text-white font-semibold text-sm sm:text-base shadow-[0_4px_20px_rgba(15,23,42,0.15)] hover:shadow-[0_8px_30px_rgba(15,23,42,0.2)] transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              className="group w-full sm:w-auto px-7 py-4 rounded-surface bg-slate-950 text-white font-semibold text-sm sm:text-base shadow-apple-sm hover:shadow-apple-md transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 min-h-[48px]"
             >
-              <span>Cari & Pinjam Alat Bantu</span>
+              <span>Cari &amp; Pinjam Alat Bantu</span>
               <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
             </a>
-            <div className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-white/80 backdrop-blur-xl border border-slate-200/60 text-slate-700 text-sm font-medium shadow-sm shadow-slate-900/5 hover:bg-white hover:border-slate-300/60 transition-all duration-300">
-              <MapPin className="w-4 h-4 text-emerald-500 shrink-0" />
+            <div className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-surface bg-white/90 backdrop-blur-xl border border-slate-200/60 text-slate-700 text-sm font-medium shadow-sm shadow-slate-900/5 hover:bg-white hover:border-slate-300/60 transition-all duration-200 min-h-[48px]">
+              <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Siap diantar/diambil di Kantor Kapanewon Temon</span>
             </div>
           </div>
 
           {/* Stat Cards - Glassmorphism, inline with hero flow */}
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
-            <div className="relative p-6 rounded-2xl bg-white/70 backdrop-blur-2xl border border-slate-200/60 shadow-sm shadow-slate-900/5 hover:border-slate-300/60 hover:shadow-md hover:shadow-slate-900/10 transition-all duration-300">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+            <div className="relative p-5 rounded-surface bg-white/85 backdrop-blur-2xl border border-slate-200/60 shadow-sm shadow-slate-900/5 hover:border-slate-300/60 hover:shadow-apple-sm transition-all duration-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-500 tracking-wide uppercase">Stok Siap Dipinjam</span>
-                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500" />
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
               </div>
               <div className="text-4xl sm:text-5xl font-extrabold text-slate-950 leading-none">
                 {totalAvailable}
@@ -76,10 +76,10 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
               <p className="text-sm text-slate-500 mt-2">Dari total {totalItems} unit alat inventaris tercatat</p>
             </div>
 
-            <div className="relative p-6 rounded-2xl bg-white/70 backdrop-blur-2xl border border-slate-200/60 shadow-sm shadow-slate-900/5 hover:border-slate-300/60 hover:shadow-md hover:shadow-slate-900/10 transition-all duration-300">
+            <div className="relative p-5 rounded-surface bg-white/85 backdrop-blur-2xl border border-slate-200/60 shadow-sm shadow-slate-900/5 hover:border-slate-300/60 hover:shadow-apple-sm transition-all duration-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-500 tracking-wide uppercase">Proses Transparan</span>
-                <HeartHandshake className="w-4.5 h-4.5 text-emerald-500" />
+                <HeartHandshake className="w-4.5 h-4.5 text-emerald-600" />
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
                 Permintaan diproses cepat oleh Superadmin via sistem Kanban dengan konfirmasi WhatsApp
@@ -92,8 +92,8 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
       {/* Catalog Section */}
       <section id="katalog" className="px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight mb-2">
+        <div className="mb-6">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight mb-1.5">
             Katalog Alat Bantu
           </h2>
           <p className="text-slate-500 text-sm sm:text-base">
@@ -102,16 +102,16 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
         </div>
 
         {/* Filter & Search Bar - Glassmorphism */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8 p-4 sm:p-5 rounded-2xl bg-white/70 backdrop-blur-2xl border border-slate-200/60 shadow-sm shadow-slate-900/5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 p-4 sm:p-5 rounded-surface bg-white/85 backdrop-blur-2xl border border-slate-200/60 shadow-sm shadow-slate-900/5">
           {/* Category Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`px-4.5 py-2.5 rounded-control text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 min-h-[44px] flex items-center ${
                   selectedCategory === cat
-                    ? 'bg-slate-950 text-white shadow-md shadow-slate-950/20'
+                    ? 'bg-slate-950 text-white shadow-apple-sm'
                     : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-800'
                 }`}
               >
@@ -128,69 +128,69 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari nama alat, pemilik, deskripsi..."
-              className="w-full pl-12 pr-4 py-3 bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 focus:bg-white transition-all duration-200 placeholder:text-slate-400"
+              className="w-full pl-12 pr-4 py-3 bg-white/90 border border-slate-200/60 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 focus:bg-white transition-all duration-200 placeholder:text-slate-400 min-h-[44px]"
             />
           </div>
         </div>
 
         {/* Equipment Grid */}
         {filteredEquipment.length === 0 ? (
-          <div className="text-center py-20 px-8 bg-white/50 backdrop-blur-xl border border-slate-200/60 rounded-3xl">
-            <Info className="w-14 h-14 text-slate-300 mx-auto mb-4" />
+          <div className="text-center py-16 px-8 bg-white/85 backdrop-blur-xl border border-slate-200/60 rounded-surface shadow-sm shadow-slate-900/5">
+            <Info className="w-14 h-14 text-slate-300 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-slate-800 mb-1">Tidak Ada Alat Bantu Ditemukan</h3>
             <p className="text-sm text-slate-500">Coba ubah kata kunci pencarian atau kategori filter Anda.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredEquipment.map((item) => {
               const isAvailable = item.stokTersedia > 0;
               return (
                 <article 
                   key={item.id} 
-                  className="group relative bg-white/70 backdrop-blur-2xl rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm shadow-slate-900/5 hover:shadow-xl hover:shadow-slate-900/10 hover:border-slate-300/60 hover:-translate-y-1 transition-all duration-400 flex flex-col"
+                  className="group relative bg-white/85 backdrop-blur-2xl rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm shadow-slate-900/5 hover:shadow-apple-md hover:border-slate-300/60 hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
                 >
                   {/* Image Container */}
-                  <div className="relative h-52 sm:h-56 bg-slate-100 overflow-hidden">
+                  <div className="relative h-48 sm:h-52 bg-slate-100 overflow-hidden">
                     <img 
                       src={item.foto} 
                       alt={item.namaAlat}
-                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out"
                       onError={(e) => {
                         e.target.src = 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=600';
                       }}
                       loading="lazy"
                     />
                     {/* Subtle overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     
                     {/* Status Badges - Top */}
-                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                      <span className={`px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-lg backdrop-blur-sm ${
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-sm backdrop-blur-sm ${
                         isAvailable 
-                          ? 'bg-emerald-500/90 text-white border border-emerald-400/30' 
-                          : 'bg-rose-500/90 text-white border border-rose-400/30'
+                          ? 'bg-emerald-600/95 text-white border border-emerald-400/30' 
+                          : 'bg-rose-600/95 text-white border border-rose-400/30'
                       }`}>
                         {isAvailable ? `${item.stokTersedia} Tersedia` : 'Stok Sedang Kosong'}
                       </span>
-                      <span className="px-3 py-1.5 rounded-full text-[10px] font-semibold bg-white/90 backdrop-blur-sm text-slate-800 border border-slate-200/60 shadow-lg">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/95 backdrop-blur-sm text-slate-800 border border-slate-200/60 shadow-sm">
                         {item.jenisAlat}
                       </span>
                     </div>
 
                     {/* Owner Badge - Bottom */}
-                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
-                      <span className="font-medium truncate max-w-[180px] text-slate-100 bg-slate-900/50 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-white/10">
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white">
+                      <span className="font-medium truncate max-w-[160px] text-slate-100 bg-slate-900/40 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/10">
                         Sumber: {item.pemilik}
                       </span>
-                      <span className="text-[10px] font-bold bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 px-2.5 py-1 rounded-lg">
+                      <span className="text-[10px] font-bold bg-emerald-500/15 border border-emerald-400/30 text-emerald-700 px-2 py-0.5 rounded-lg">
                         {item.statusUtama || 'Tersedia'}
                       </span>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-5">
-                    <div className="space-y-2.5">
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
                       <h3 className="text-base sm:text-lg font-bold text-slate-950 group-hover:text-emerald-700 transition-colors duration-200 line-clamp-1">
                         {item.namaAlat}
                       </h3>
@@ -206,10 +206,10 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
                     </div>
 
                     {/* Action Buttons - Apple style */}
-                    <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className="grid grid-cols-2 gap-2.5 pt-0.5">
                       <button
                         onClick={() => onDetailClick(item)}
-                        className="w-full py-3 px-4 rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300/80 text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        className="w-full py-3 px-4 rounded-xl border border-slate-200/80 bg-white/90 backdrop-blur-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300/80 text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 min-h-[44px]"
                       >
                         <Eye className="w-4.5 h-4.5 text-slate-400" />
                         <span>Detail</span>
@@ -217,9 +217,9 @@ export default function PublicCatalog({ equipmentList, onRequestClick, onDetailC
                       <button
                         onClick={() => isAvailable && onRequestClick(item)}
                         disabled={!isAvailable}
-                        className={`w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                        className={`w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 min-h-[44px] ${
                           isAvailable
-                            ? 'bg-slate-950 hover:bg-slate-900 text-white shadow-md shadow-slate-950/20 hover:shadow-lg hover:shadow-slate-950/30'
+                            ? 'bg-slate-950 hover:bg-slate-900 text-white shadow-apple-sm hover:shadow-apple-md'
                             : 'bg-slate-100 text-slate-300 cursor-not-allowed border border-slate-200'
                         }`}
                       >
