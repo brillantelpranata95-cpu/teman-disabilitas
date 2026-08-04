@@ -1,3 +1,10 @@
+function adminHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'x-auth-token': localStorage.getItem('auth_token') || ''
+  };
+}
+
 export const dbService = {
   // --- EQUIPMENT ---
   getEquipment: async () => {
@@ -15,9 +22,10 @@ export const dbService = {
     try {
       const res = await fetch('/api/equipment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders(),
         body: JSON.stringify(itemData)
       });
+      if (!res.ok) console.error('Error saving equipment:', await res.text());
       return res.ok;
     } catch (error) {
       console.error("Error saving equipment:", error);
@@ -29,9 +37,10 @@ export const dbService = {
     try {
       const res = await fetch('/api/equipment', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders(),
         body: JSON.stringify({ id })
       });
+      if (!res.ok) console.error('Error deleting equipment:', await res.text());
       return res.ok;
     } catch (error) {
       console.error("Error deleting equipment:", error);
