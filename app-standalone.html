@@ -51,6 +51,72 @@
 
   <div id="root"></div>
 
+  <!-- Firebase SDK Modules (Client-side ESM) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, enableIndexedDbPersistence, collection, onSnapshot, 
+      doc, setDoc, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { 
+      getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, 
+      onAuthStateChanged, signOut, browserLocalPersistence, setPersistence 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTH1vbanrVgTKz30dujW3BzTOsAgJGxYU",
+      authDomain: "teman-disabilitas.firebaseapp.com",
+      projectId: "teman-disabilitas",
+      storageBucket: "teman-disabilitas.firebasestorage.app",
+      messagingSenderId: "1030126341881",
+      appId: "1:1030126341881:web:f7b0c05675ef3968e2dc28",
+      measurementId: "G-YZ3829XVCE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Enforce browserLocalPersistence
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+    // Enforce offline persistence (Cache data to IndexedDB for speed & offline access)
+    enableIndexedDbPersistence(db).catch((err) => {
+      console.warn("Persistence code: ", err.code);
+    });
+
+    // Superadmin Emails List
+    const SUPERADMIN_EMAILS = [
+      "temonkec@gmail.com",
+      "brillantelpranata95@gmail.com"
+    ];
+
+    window.firestoreDB = db;
+    window.firebaseAuth = auth;
+    window.SUPERADMIN_EMAILS = SUPERADMIN_EMAILS;
+    window.fbCollection = collection;
+    window.fbOnSnapshot = onSnapshot;
+    window.fbDoc = doc;
+    window.fbSetDoc = setDoc;
+    window.fbDeleteDoc = deleteDoc;
+
+    window.loginWithGoogle = () => {
+      const provider = new GoogleAuthProvider();
+      signInWithRedirect(auth, provider);
+    };
+
+    window.logoutGoogle = () => {
+      signOut(auth);
+    };
+
+    // Check redirect result on mount
+    getRedirectResult(auth).then((result) => {
+      if (result?.user) {
+        console.log("Logged in:", result.user.email);
+      }
+    }).catch(console.error);
+  </script>
+
   <script type="text/babel">
     const { useState, useEffect } = React;
 
@@ -196,6 +262,8 @@
 
     // --- MAIN APP COMPONENT ---
     function App() {
+      const [user, setUser] = useState(null);
+      const [isSuperAdmin, setIsSuperAdmin] = useState(false);
       const [isAdminMode, setIsAdminMode] = useState(false);
       const [equipmentList, setEquipmentList] = useState([]);
       const [requests, setRequests] = useState([]);
@@ -211,22 +279,57 @@
       
       const [toast, setToast] = useState(null);
 
-      // Load & Sync LocalStorage
+      // Auth Listener
       useEffect(() => {
-        const eqData = localStorage.getItem('perisai_temon_eq_v2');
-        const reqData = localStorage.getItem('perisai_temon_req_v2');
+        if (!window.firebaseAuth) return;
+        return window.firebaseAuth.onAuthStateChanged((currUser) => {
+          setUser(currUser);
+          if (currUser && currUser.email && window.SUPERADMIN_EMAILS.includes(currUser.email.toLowerCase())) {
+            setIsSuperAdmin(true);
+            setIsAdminMode(true);
+          } else {
+            setIsSuperAdmin(false);
+            setIsAdminMode(false);
+          }
+        });
+      }, []);
 
-        if (eqData) setEquipmentList(JSON.parse(eqData));
-        else {
-          localStorage.setItem('perisai_temon_eq_v2', JSON.stringify(INITIAL_EQUIPMENT));
-          setEquipmentList(INITIAL_EQUIPMENT);
-        }
+      // Load & Sync Realtime Firebase Firestore + LocalStorage fallback
+      useEffect(() => {
+        if (!window.firestoreDB) return;
 
-        if (reqData) setRequests(JSON.parse(reqData));
-        else {
-          localStorage.setItem('perisai_temon_req_v2', JSON.stringify(INITIAL_REQUESTS));
-          setRequests(INITIAL_REQUESTS);
-        }
+        // Sync Equipment Realtime
+        const unsubEq = window.fbOnSnapshot(window.fbCollection(window.firestoreDB, "equipment"), (snapshot) => {
+          if (!snapshot.empty) {
+            const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            setEquipmentList(data);
+          } else {
+            // Seed initial data to Firestore if empty
+            INITIAL_EQUIPMENT.forEach(item => {
+              window.fbSetDoc(window.fbDoc(window.firestoreDB, "equipment", item.id), item);
+            });
+            setEquipmentList(INITIAL_EQUIPMENT);
+          }
+        });
+
+        // Sync Requests Realtime
+        const unsubReq = window.fbOnSnapshot(window.fbCollection(window.firestoreDB, "requests"), (snapshot) => {
+          if (!snapshot.empty) {
+            const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            setRequests(data);
+          } else {
+            // Seed initial requests to Firestore if empty
+            INITIAL_REQUESTS.forEach(req => {
+              window.fbSetDoc(window.fbDoc(window.firestoreDB, "requests", req.id), req);
+            });
+            setRequests(INITIAL_REQUESTS);
+          }
+        });
+
+        return () => {
+          unsubEq();
+          unsubReq();
+        };
       }, []);
 
       useEffect(() => {
@@ -240,12 +343,20 @@
 
       const saveEq = (newList) => {
         setEquipmentList(newList);
-        localStorage.setItem('perisai_temon_eq_v2', JSON.stringify(newList));
+        if (window.firestoreDB) {
+          newList.forEach(item => {
+            window.fbSetDoc(window.fbDoc(window.firestoreDB, "equipment", item.id), item, { merge: true });
+          });
+        }
       };
 
       const saveReq = (newList) => {
         setRequests(newList);
-        localStorage.setItem('perisai_temon_req_v2', JSON.stringify(newList));
+        if (window.firestoreDB) {
+          newList.forEach(req => {
+            window.fbSetDoc(window.fbDoc(window.firestoreDB, "requests", req.id), req, { merge: true });
+          });
+        }
       };
 
       // --------------------------------------------------------

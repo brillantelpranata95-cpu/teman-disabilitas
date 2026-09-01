@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "temon-teman-disabilitas",
+    "site": "teman-disabilitas",
     "public": "dist",
     "ignore": [
       "firebase.json",
