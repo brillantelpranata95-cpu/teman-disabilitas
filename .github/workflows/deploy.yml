@@ -27,7 +27,12 @@ jobs:
       - name: Tulis service account
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEMAN_DISABILITAS }}' > "$RUNNER_TEMP/sa.json"
 
-      - name: Deploy Hosting + Firestore Rules
-        run: npx firebase-tools deploy --only hosting,firestore:rules --project teman-disabilitas --non-interactive
+      - name: Deploy Hosting
+        run: npx firebase-tools deploy --only hosting --project teman-disabilitas --non-interactive
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+
+      - name: Deploy Firestore Rules (REST API)
+        run: node scripts/deploy-rules.mjs
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
