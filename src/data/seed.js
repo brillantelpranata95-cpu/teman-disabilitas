@@ -72,7 +72,7 @@ export const INITIAL_EQUIPMENT = [
   {
     id: "EQ-006",
     namaAlat: "Kasur Medis Anti-Dekubitus",
-    jenisAlat: "Perawatan",
+    jenisAlat: "Lainnya",
     foto: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600",
     pemilik: "Dinas Kesehatan Kulon Progo",
     statusUtama: "Tersedia",

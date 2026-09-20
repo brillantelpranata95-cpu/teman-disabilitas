@@ -6,13 +6,12 @@ export const KALURAHAN_TEMON = [
   "Demen", "Kulur", "Karangwuni", "Janten",
 ];
 
-export const JENIS_ALAT = ["Mobilisasi", "Pendengaran", "Penglihatan", "Perawatan", "Lainnya"];
+export const JENIS_ALAT = ["Mobilisasi", "Pendengaran", "Penglihatan", "Lainnya"];
 
 export const JENIS_ALAT_ICON = {
   Mobilisasi: "wheelchair",
   Pendengaran: "hearing-aid",
   Penglihatan: "glasses",
-  Perawatan: "stethoscope",
   Lainnya: "package",
 };
 

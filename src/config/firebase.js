@@ -5,6 +5,12 @@ import { getAuth, browserLocalPersistence, setPersistence } from "firebase/auth"
 
 // Firebase web config — project: teman-disabilitas
 // API key web bersifat publik (tertanam di bundle client) dan dilindungi Firestore Rules.
+//
+// Catatan authDomain: harus tetap firebaseapp.com. Handler OAuth di domain
+// web.app tidak terdaftar di Google OAuth client (redirect_uri_mismatch),
+// sehingga memakai domain sendiri sebagai authDomain akan mematahkan login.
+// Alur login yang andal = signInWithPopup (lihat AuthContext), bukan redirect.
+
 const firebaseConfig = {
   apiKey: "AIzaSyCTH1vbanrVgTKz30dujW3BzTOsAgJGxYU",
   authDomain: "teman-disabilitas.firebaseapp.com",

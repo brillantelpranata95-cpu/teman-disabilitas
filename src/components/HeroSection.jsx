@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, SUPERADMIN_EMAILS } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import Icon from "./Icon";
 
 /**
@@ -17,9 +18,45 @@ import Icon from "./Icon";
  */
 export default function HeroSection({ stats, equipmentCount, onExplore, onOpenAdmin }) {
   const { user, isSuperAdmin, loginWithGoogle, logout } = useAuth();
+  const toast = useToast();
   const videoRef = useRef(null);
   const [reduceMotion, setReduceMotion] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  /* Login Google + umpan balik jelas (sukses / akun bukan superadmin / gagal) */
+  const handleLogin = async () => {
+    if (loggingIn) return;
+    setLoggingIn(true);
+    try {
+      const res = await loginWithGoogle();
+      if (!res || res.redirected) return; // redirect: hasil diproses saat kembali
+
+      if (res.ok && res.user) {
+        const email = (res.user.email || "").toLowerCase();
+        if (SUPERADMIN_EMAILS.includes(email)) {
+          toast(`Selamat datang, ${res.user.displayName || email}!`);
+        } else {
+          toast(
+            `Akun ${res.user.email} tidak memiliki akses superadmin. Masuk dengan temonkec@gmail.com.`,
+            "error"
+          );
+        }
+        return;
+      }
+
+      if (!res.ok && !res.cancelled) {
+        toast(
+          res.code === "auth/unauthorized-domain"
+            ? "Domain ini belum diizinkan di Firebase Auth."
+            : "Gagal masuk dengan Google. Silakan coba lagi.",
+          "error"
+        );
+      }
+    } finally {
+      setLoggingIn(false);
+    }
+  };
 
   /* Hormati preferensi aksesibilitas pengguna */
   useEffect(() => {
@@ -132,12 +169,13 @@ export default function HeroSection({ stats, equipmentCount, onExplore, onOpenAd
             </div>
           ) : (
             <button
-              onClick={loginWithGoogle}
-              className="hero-rise btn border border-white/25 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 active:scale-[0.98]"
+              onClick={handleLogin}
+              disabled={loggingIn}
+              className="hero-rise btn border border-white/25 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 active:scale-[0.98] disabled:opacity-70"
             >
               <Icon name="log-in" className="h-4 w-4" />
-              <span className="hidden sm:inline">Masuk Superadmin</span>
-              <span className="sm:hidden">Masuk</span>
+              <span className="hidden sm:inline">{loggingIn ? "Menghubungkan…" : "Masuk Superadmin"}</span>
+              <span className="sm:hidden">{loggingIn ? "…" : "Masuk"}</span>
             </button>
           )}
         </header>
