@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ToastProvider, useToast } from "./context/ToastContext";
-import { subscribeEquipment, subscribeRequests, seedEquipment } from "./services/firestoreService";
-import { INITIAL_EQUIPMENT } from "./data/seed";
+import { subscribeEquipment, subscribeRequests } from "./services/firestoreService";
 import HeroSection from "./components/HeroSection";
 import AdminBar from "./components/AdminBar";
 import Footer from "./components/Footer";
@@ -22,7 +21,6 @@ function Shell() {
   const [requests, setRequests] = useState([]);
   const [loadingEq, setLoadingEq] = useState(true);
   const [loadingReq, setLoadingReq] = useState(true);
-  const [seeded, setSeeded] = useState(false);
 
   /* Realtime sync — equipment */
   useEffect(() => {
@@ -51,18 +49,6 @@ function Shell() {
       }
     );
   }, []);
-
-  /* Seed sekali saat koleksi kosong & superadmin login */
-  useEffect(() => {
-    if (!isSuperAdmin || seeded || loadingEq || equipment.length > 0) return;
-    setSeeded(true);
-    seedEquipment(INITIAL_EQUIPMENT)
-      .then(() => toast("Data contoh inventaris berhasil dimuat."))
-      .catch((err) => {
-        console.error(err);
-        toast("Gagal memuat data contoh.", "error");
-      });
-  }, [isSuperAdmin, seeded, loadingEq, equipment.length, toast]);
 
   /* Jika superadmin login, arahkan ke papan kerja */
   useEffect(() => {

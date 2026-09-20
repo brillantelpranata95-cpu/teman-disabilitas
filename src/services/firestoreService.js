@@ -56,11 +56,6 @@ export async function deleteEquipment(id) {
   await deleteDoc(doc(db, EQ, id));
 }
 
-/** Isi data contoh ke koleksi kosong (sekali saja, dipanggil superadmin). */
-export async function seedEquipment(items) {
-  for (const it of items) await saveEquipment(it);
-}
-
 /* ---------- Requests ---------- */
 
 export async function saveRequest(req) {
