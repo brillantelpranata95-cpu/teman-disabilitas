@@ -11,6 +11,14 @@
       {
         "source": "/logo*.png",
         "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+      },
+      {
+        "source": "/hero.mp4",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+      },
+      {
+        "source": "/hero-poster.jpg",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
       }
     ]
   },

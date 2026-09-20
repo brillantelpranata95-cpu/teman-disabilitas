@@ -53,6 +53,31 @@
   }
 }
 
+/* ===== Hero full-screen dengan video ===== */
+.hero-full {
+  min-height: 100vh;
+  min-height: 100svh; /* iOS: tinggi stabil tanpa lompatan address bar */
+}
+
+/* Animasi masuk bertahap — ringan (transform+opacity, tidak memicu reflow) */
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-rise {
+  animation: hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-rise-delay-1 { animation-delay: 0.12s; }
+.hero-rise-delay-2 { animation-delay: 0.24s; }
+.hero-rise-delay-3 { animation-delay: 0.36s; }
+
+/* Hormati preferensi pengguna: matikan animasi & video */
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise { animation: none; }
+  .hero-full video { display: none; }
+  html { scroll-behavior: auto; }
+}
+
 /* Cetak laporan arsip */
 @media print {
   .no-print { display: none !important; }

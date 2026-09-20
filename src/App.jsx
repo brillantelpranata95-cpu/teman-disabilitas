@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ToastProvider, useToast } from "./context/ToastContext";
 import { subscribeEquipment, subscribeRequests, seedEquipment } from "./services/firestoreService";
 import { INITIAL_EQUIPMENT } from "./data/seed";
-import Navbar from "./components/Navbar";
+import HeroSection from "./components/HeroSection";
+import AdminBar from "./components/AdminBar";
 import Footer from "./components/Footer";
 import PublicCatalog from "./components/PublicCatalog";
 import KanbanBoard from "./components/KanbanBoard";
@@ -13,7 +14,7 @@ import Icon from "./components/Icon";
 import { STAGE } from "./utils/constants";
 
 function Shell() {
-  const { user, isSuperAdmin, loginWithGoogle } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const toast = useToast();
 
   const [view, setView] = useState("catalog");
@@ -84,81 +85,86 @@ function Shell() {
     : ["catalog"];
   const current = allowed.includes(view) ? view : "catalog";
 
+  /* Gulir halus ke katalog dari hero */
+  const goExplore = useCallback(() => {
+    document.getElementById("katalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar view={current} setView={setView} stats={stats} />
-
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="flex-1">
         {current === "catalog" && (
           <>
-            {isSuperAdmin && (
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-perisai-200 bg-perisai-50 p-4">
-                <div className="flex items-center gap-3">
-                  <Icon name="shield-check" className="h-5 w-5 text-perisai-700" />
-                  <p className="text-sm font-semibold text-perisai-900">
-                    Anda masuk sebagai superadmin.
-                  </p>
+            {/* Hero full-screen — bar atas (logo + login) menyatu di dalamnya */}
+            <HeroSection
+              stats={stats}
+              equipmentCount={equipment.length}
+              onExplore={goExplore}
+              onOpenAdmin={() => setView("kanban")}
+            />
+
+            <div className={`mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 ${isSuperAdmin ? "pb-32" : "pb-16"}`}>
+              {user && !isSuperAdmin && (
+                <div className="mb-8 rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+                  <div className="flex items-start gap-3">
+                    <Icon name="shield-alert" className="mt-0.5 h-5 w-5 shrink-0" />
+                    <div>
+                      <p className="font-bold">Akun Anda tidak memiliki akses superadmin.</p>
+                      <p className="mt-0.5 text-xs">
+                        Masuk dengan akun <strong>temonkec@gmail.com</strong> untuk mengelola data.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <button onClick={() => setView("kanban")} className="btn-primary !py-2.5 !text-xs">
-                  <Icon name="kanban" className="h-3.5 w-3.5" /> Buka Papan Kerja
+              )}
+              <PublicCatalog equipment={equipment} />
+            </div>
+          </>
+        )}
+
+        {current !== "catalog" && (
+          <>
+            {/* Bar ringkas panel admin — pengganti navbar, hanya di area kerja */}
+            <header className="no-print sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-lg">
+              <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <button
+                  onClick={() => setView("catalog")}
+                  className="flex items-center gap-3 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-perisai-700"
+                  aria-label="Kembali ke situs publik"
+                >
+                  <img src="/logo.png" alt="Logo PERISAI Temon" className="h-10 w-10 rounded-2xl object-contain" />
+                  <span>
+                    <span className="block text-sm font-extrabold tracking-tight text-slate-900">
+                      Panel Superadmin
+                    </span>
+                    <span className="block text-[11px] font-medium text-slate-500">
+                      PERISAI Temon • Kapanewon Temon
+                    </span>
+                  </span>
+                </button>
+
+                <button onClick={() => setView("catalog")} className="btn-secondary !py-2.5">
+                  <Icon name="globe" className="h-4 w-4" />
+                  <span className="hidden sm:inline">Lihat Situs Publik</span>
+                  <span className="sm:hidden">Situs</span>
                 </button>
               </div>
-            )}
-            <PublicCatalog equipment={equipment} stats={stats} />
-          </>
-        )}
+            </header>
 
-        {current === "kanban" && (
-          <>
-            <AdminHeader stats={stats} />
-            <KanbanBoard requests={requests} loading={loadingReq} />
-          </>
-        )}
-
-        {current === "inventory" && (
-          <>
-            <AdminHeader stats={stats} />
-            <EquipmentManager equipment={equipment} loading={loadingEq} />
-          </>
-        )}
-
-        {current === "archive" && (
-          <>
-            <AdminHeader stats={stats} />
-            <ArchiveView requests={requests} loading={loadingReq} />
-          </>
-        )}
-
-        {/* Gerbang login — muncul bila pengunjung mencoba akses area admin */}
-        {!isSuperAdmin && user && (
-          <div className="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
-            <div className="flex items-start gap-3">
-              <Icon name="shield-alert" className="mt-0.5 h-5 w-5 shrink-0" />
-              <div>
-                <p className="font-bold">Akun Anda tidak memiliki akses superadmin.</p>
-                <p className="mt-0.5 text-xs">
-                  Masuk dengan akun <strong>temonkec@gmail.com</strong> untuk mengelola data.
-                </p>
-              </div>
+            <div className="mx-auto w-full max-w-7xl px-4 py-8 pb-32 sm:px-6 lg:px-8">
+              <AdminHeader stats={stats} />
+              {current === "kanban" && <KanbanBoard requests={requests} loading={loadingReq} />}
+              {current === "inventory" && <EquipmentManager equipment={equipment} loading={loadingEq} />}
+              {current === "archive" && <ArchiveView requests={requests} loading={loadingReq} />}
             </div>
-          </div>
-        )}
-
-        {!user && view !== "catalog" && (
-          <div className="card mt-8 p-8 text-center">
-            <Icon name="log-in" className="mx-auto h-8 w-8 text-perisai-700" />
-            <p className="mt-3 font-bold text-slate-800">Area khusus superadmin</p>
-            <p className="mt-1 text-xs text-slate-500">
-              Masuk dengan akun Google yang terdaftar untuk mengelola inventaris & permintaan.
-            </p>
-            <button onClick={loginWithGoogle} className="btn-primary mx-auto mt-4">
-              <Icon name="log-in" className="h-4 w-4" /> Masuk dengan Google
-            </button>
-          </div>
+          </>
         )}
       </main>
 
       <Footer />
+
+      {/* Navigasi mengambang superadmin — menggantikan navbar atas */}
+      {isSuperAdmin && <AdminBar view={current} setView={setView} incoming={stats.incoming} />}
     </div>
   );
 }

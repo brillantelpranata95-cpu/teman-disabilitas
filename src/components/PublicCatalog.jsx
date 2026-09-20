@@ -3,7 +3,7 @@ import Icon from "./Icon";
 import RequestModal from "./RequestModal";
 import { JENIS_ALAT, JENIS_ALAT_ICON, formatTanggal } from "../utils/constants";
 
-export default function PublicCatalog({ equipment, stats }) {
+export default function PublicCatalog({ equipment }) {
   const [kategori, setKategori] = useState("Semua");
   const [q, setQ] = useState("");
   const [reqItem, setReqItem] = useState(null);
@@ -23,53 +23,6 @@ export default function PublicCatalog({ equipment, stats }) {
 
   return (
     <div className="space-y-10 pb-16">
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-perisai-900 via-perisai-800 to-perisai-700 p-8 text-white shadow-modal sm:p-12">
-        <div
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-20"
-          style={{ background: "radial-gradient(circle, #CBDCA5 0%, transparent 70%)" }}
-        />
-        <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
-          <div className="space-y-5 lg:col-span-8">
-            <span className="chip border border-white/20 bg-white/10 text-perisai-100">
-              Layanan Inklusif Kapanewon Temon
-            </span>
-            <h1 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:text-[2.75rem]">
-              Ketersediaan Alat Bantu Disabilitas
-              <br />
-              <span className="bg-gradient-to-r from-perisai-300 to-perisai-400 bg-clip-text text-transparent">
-                Kapanewon Temon
-              </span>
-            </h1>
-            <p className="max-w-2xl text-sm leading-relaxed text-perisai-100/90">
-              Cek stok alat bantu disabilitas secara real-time dan ajukan permohonan
-              pinjam tanpa biaya — cukup dari ponsel Anda.
-            </p>
-            <a href="#katalog" className="btn bg-white text-perisai-900 hover:bg-perisai-50">
-              <Icon name="search" className="h-4 w-4" />
-              Cari & Pinjam Alat
-            </a>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 lg:col-span-4 lg:grid-cols-1">
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs font-bold text-perisai-100">Stok Siap Dipinjam</p>
-              <p className="mt-1 text-3xl font-extrabold">
-                {stats?.available ?? 0}
-                <span className="ml-1 text-sm font-normal text-perisai-100/80">Unit</span>
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs font-bold text-perisai-100">Jenis Alat</p>
-              <p className="mt-1 text-3xl font-extrabold">
-                {equipment.length}
-                <span className="ml-1 text-sm font-normal text-perisai-100/80">Item</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Filter + grid */}
       <div id="katalog" className="space-y-6 scroll-mt-24">
         <div className="card flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
