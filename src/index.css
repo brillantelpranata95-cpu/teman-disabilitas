@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-perisai-50 text-slate-900 antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection { @apply bg-perisai-300 text-perisai-900; }
+}
+
+@layer components {
+  /* Tombol — target sentuh ≥44px (Apple HIG) */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3
+           text-sm font-semibold transition-all duration-200
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-perisai-700
+           focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-perisai-700 text-white shadow-card hover:bg-perisai-800
+           hover:shadow-card-hover active:scale-[0.98];
+  }
+  .btn-secondary {
+    @apply btn border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100 active:scale-[0.98];
+  }
+  .btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700 active:scale-[0.98];
+  }
+  .btn-wa {
+    @apply btn border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100;
+  }
+
+  /* Input — fokus jelas, ukuran nyaman */
+  .input {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm
+           placeholder:text-slate-400 transition
+           focus:border-perisai-600 focus:outline-none focus:ring-2 focus:ring-perisai-600/20;
+  }
+  .label { @apply mb-1.5 block text-xs font-semibold text-slate-600; }
+
+  .card {
+    @apply rounded-3xl border border-slate-200/80 bg-white shadow-card;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold;
+  }
+}
+
+/* Cetak laporan arsip */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; }
+  .card { box-shadow: none !important; border-color: #e2e8f0 !important; }
+}

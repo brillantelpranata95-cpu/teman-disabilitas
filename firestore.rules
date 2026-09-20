@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Daftar superadmin — harus sama dengan SUPERADMIN_EMAILS di src/context/AuthContext.jsx
+    function isSuperAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        "temonkec@gmail.com",
+        "brillantelpranata95@gmail.com"
+      ];
+    }
+
+    // Inventaris: publik boleh membaca (katalog), hanya superadmin boleh mengubah.
+    match /equipment/{id} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // Permohonan: publik boleh membuat (form pinjam), hanya superadmin boleh mengelola.
+    match /requests/{id} {
+      allow create: if true;
+      allow read, update, delete: if isSuperAdmin();
+    }
+
+    // Tolak akses ke koleksi lain.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

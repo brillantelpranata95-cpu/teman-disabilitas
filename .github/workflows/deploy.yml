@@ -1,0 +1,33 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production
+        run: npm run build
+
+      - name: Tulis service account
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEMAN_DISABILITAS }}' > "$RUNNER_TEMP/sa.json"
+
+      - name: Deploy Hosting + Firestore Rules
+        run: npx firebase-tools deploy --only hosting,firestore:rules --project teman-disabilitas --non-interactive
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
